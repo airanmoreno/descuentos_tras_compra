@@ -1,0 +1,6 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/fincacan/canarias.fincacanarias.com/modules/descuentos_tras_compra
+    - /bin/cp descuentos_tras_compra.php $DEPLOYPATH
+    

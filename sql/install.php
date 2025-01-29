@@ -23,12 +23,15 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
-header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+$sql = array();
 
-header('Cache-Control: no-store, no-cache, must-revalidate');
-header('Cache-Control: post-check=0, pre-check=0', false);
-header('Pragma: no-cache');
+$sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'descuentos_tras_compra` (
+    `id_descuentos_tras_compra` int(11) NOT NULL AUTO_INCREMENT,
+    PRIMARY KEY  (`id_descuentos_tras_compra`)
+) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
 
-header('Location: ../');
-exit;
+foreach ($sql as $query) {
+    if (Db::getInstance()->execute($query) == false) {
+        return false;
+    }
+}
