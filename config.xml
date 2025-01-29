@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>Descuentot tras compra</name>
+    <displayName>Generador de Código de Descuento Tras Compra</displayName>
+    <version>1.0.0</version>
+    <author> Finca Canarias Aloe Vera - Airan</author>
+    <description>Genera códigos de descuento automáticamente tras la compra.</description>
+    <tab>pricing_promotion</tab>
+</module>
