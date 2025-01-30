@@ -217,4 +217,44 @@ class Descuentos_tras_compra extends Module
         $this->context->controller->addJS($this->_path.'/views/js/front.js');
         $this->context->controller->addCSS($this->_path.'/views/css/front.css');
     }
+    public function hookActionValidateOrder($params)
+    {
+        $order = $params['order'];
+        $customer = new Customer((int) $order->id_customer);
+
+        if (!Validate::isLoadedObject($customer)) {
+            return;
+        }
+
+        $discountCode = 'DESC' . strtoupper(Tools::passwdGen(8));
+
+        $cartRule = new CartRule();
+        $cartRule->code = $discountCode;
+        $cartRule->name = ['1' => 'Descuento especial'];
+        $cartRule->id_customer = (int) $customer->id;
+        $cartRule->date_from = date('Y-m-d H:i:s');
+        $cartRule->date_to = date('Y-m-d H:i:s', strtotime('+30 days'));
+        $cartRule->quantity = 1;
+        $cartRule->quantity_per_user = 1;
+        $cartRule->reduction_percent = 5; 
+        $cartRule->active = 1;
+        $cartRule->add();
+
+        Mail::Send(
+            (int) $order->id_lang,
+            'discount_email',
+            $this->l('¡Tu código de descuento!'),
+            [
+                '{firstname}' => $customer->firstname,
+                '{discount_code}' => $discountCode
+            ],
+            $customer->email,
+            $customer->firstname . ' ' . $customer->lastname,
+            null,
+            null,
+            null,
+            null,
+            _PS_MODULE_DIR_ . 'micodigodescuento/mails/'
+        );
+    }
 }
