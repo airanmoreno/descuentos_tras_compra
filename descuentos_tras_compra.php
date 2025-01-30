@@ -233,7 +233,7 @@ class Descuentos_tras_compra extends Module
         $orderState = new OrderState((int) $order->id_order_state);
         $orderStateId = $order->current_state; // ID del estado
 
-        if ($orderStateId == Configuration::get('PS_OS_PAYMENT')) {
+        if ($orderStateId == Configuration::get('PS_OS_PAYMENT') or $orderState == Configuration::get('PS_OS_PREPARATION') or $orderState == 10 or $orderStateId == 10) {
 
             $discountCode = 'DESC' . strtoupper(Tools::passwdGen(8));
             error_log('Código generado: ' . $discountCode); // 🔍 Debug
@@ -278,6 +278,8 @@ class Descuentos_tras_compra extends Module
                 error_log($logMessage); // Guarda en logs de PHP
                 die($logMessage); // Detiene la ejecución y muestra el error en pantalla
             }
+            error_log('El pedido SALE EN ID ' . $orderStateId); // 🔍 Debug
+            error_log('El pedido SALE COMO ID ' . $orderState); // 🔍 Debug
         }
         else
         {
