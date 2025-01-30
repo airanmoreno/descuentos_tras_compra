@@ -254,7 +254,7 @@ class Descuentos_tras_compra extends Module
             null,
             null,
             null,
-            _PS_MODULE_DIR_ . 'micodigodescuento/mails/'
+            _PS_MODULE_DIR_ . 'descuentos_tras_compra/mails/es/'
         );
     }
 }
