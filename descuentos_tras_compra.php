@@ -225,10 +225,13 @@ class Descuentos_tras_compra extends Module
         $customer = new Customer((int) $order->id_customer);
 
         if (!Validate::isLoadedObject($customer)) {
+            error_log('Cliente no válido'); // 🔍 Debug
+
             return;
         }
 
         $discountCode = 'DESC' . strtoupper(Tools::passwdGen(8));
+        error_log('Código generado: ' . $discountCode); // 🔍 Debug
 
         $cartRule = new CartRule();
         $cartRule->code = $discountCode;
@@ -242,7 +245,11 @@ class Descuentos_tras_compra extends Module
         $cartRule->active = 1;
         $cartRule->add();
 
-        Mail::Send(
+        if (!$cartRule->add()) {
+            error_log('Error al crear el código de descuento'); // 🔍 Debug
+        }
+
+        $result = Mail::Send(
             (int) $order->id_lang,
             'discount_email',
             $this->l('¡Tu código de descuento!'),
@@ -258,5 +265,10 @@ class Descuentos_tras_compra extends Module
             null,
             _PS_MODULE_DIR_ . 'descuentos_tras_compra/mails/es/'
         );
+        if (!$result) {
+            error_log('❌ Error al enviar el email');
+        } else {
+            error_log('✅ Email enviado con éxito');
+        }
     }
 }
