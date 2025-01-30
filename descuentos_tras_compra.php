@@ -65,7 +65,9 @@ class Descuentos_tras_compra extends Module
 
         return parent::install() &&
             $this->registerHook('header') &&
-            $this->registerHook('displayBackOfficeHeader');
+            $this->registerHook('displayBackOfficeHeader') &&
+            $this->registerHook('actionValidateOrder'); // 🚀 Aquí agregamos el hook
+
     }
 
     public function uninstall()
