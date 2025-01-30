@@ -282,6 +282,9 @@ class Descuentos_tras_compra extends Module
         else
         {
             error_log('El pedido no esta pagado'); // 🔍 Debug
+            error_log('El pedido SALE EN ID ' . $orderStateId); // 🔍 Debug
+            error_log('El pedido SALE COMO ID ' . $orderState); // 🔍 Debug
+
         }
     }
 
