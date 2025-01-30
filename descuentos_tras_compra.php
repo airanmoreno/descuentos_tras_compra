@@ -66,9 +66,7 @@ class Descuentos_tras_compra extends Module
         return parent::install() &&
             $this->registerHook('header') &&
             $this->registerHook('displayBackOfficeHeader') &&
-            $this->registerHook('actionValidateOrder') && // 🚀 Aquí agregamos el hook
-            $this->registerHook('actionValidateOrderAfter'); // 🚀 Aquí agregamos el hook
-
+            $this->registerHook('actionValidateOrder') ;
 
     }
 
@@ -270,60 +268,12 @@ class Descuentos_tras_compra extends Module
         if (!$result) {
             error_log('❌ Error al enviar el email');
         } else {
-            error_log('✅ Email enviado con éxito');
+            $errorMessage = error_get_last(); // Obtiene el último error PHP
+            $logMessage = '❌ Error al enviar el email: ' . print_r($errorMessage, true);
+            error_log($logMessage); // Guarda en logs de PHP
+            die($logMessage); // Detiene la ejecución y muestra el error en pantalla
         }
     }
 
-    public function hookActionValidateOrderAfter($params)
-    {
-        $order = $params['order'];
-        $customer = new Customer((int) $order->id_customer);
-
-        if (!Validate::isLoadedObject($customer)) {
-            error_log('Cliente no válido'); // 🔍 Debug
-
-            return;
-        }
-
-        $discountCode = 'DESC' . strtoupper(Tools::passwdGen(8));
-        error_log('Código generado: ' . $discountCode); // 🔍 Debug
-
-        $cartRule = new CartRule();
-        $cartRule->code = $discountCode;
-        $cartRule->name = ['1' => 'Descuento especial'];
-        $cartRule->id_customer = (int) $customer->id;
-        $cartRule->date_from = date('Y-m-d H:i:s');
-        $cartRule->date_to = date('Y-m-d H:i:s', strtotime('+30 days'));
-        $cartRule->quantity = 1;
-        $cartRule->quantity_per_user = 1;
-        $cartRule->reduction_percent = 5; 
-        $cartRule->active = 1;
-        $cartRule->add();
-
-        if (!$cartRule->add()) {
-            error_log('Error al crear el código de descuento'); // 🔍 Debug
-        }
-
-        $result = Mail::Send(
-            (int) $order->id_lang,
-            'discount_email',
-            $this->l('¡Tu código de descuento!'),
-            [
-                '{firstname}' => $customer->firstname,
-                '{discount_code}' => $discountCode
-            ],
-            $customer->email,
-            $customer->firstname . ' ' . $customer->lastname,
-            null,
-            null,
-            null,
-            null,
-            _PS_MODULE_DIR_ . 'descuentos_tras_compra/mails/es/'
-        );
-        if (!$result) {
-            error_log('❌ Error al enviar el email');
-        } else {
-            error_log('✅ Email enviado con éxito');
-        }
-    }
+    
 }
