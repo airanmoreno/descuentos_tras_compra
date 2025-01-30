@@ -230,48 +230,58 @@ class Descuentos_tras_compra extends Module
             return;
         }
 
-        $discountCode = 'DESC' . strtoupper(Tools::passwdGen(8));
-        error_log('Código generado: ' . $discountCode); // 🔍 Debug
+        $orderState = new OrderState((int) $order->id_order_state);
+        $orderStateId = $order->current_state; // ID del estado
 
-        $cartRule = new CartRule();
-        $cartRule->code = $discountCode;
-        $cartRule->name = ['1' => 'Descuento especial'];
-        $cartRule->id_customer = (int) $customer->id;
-        $cartRule->date_from = date('Y-m-d H:i:s');
-        $cartRule->date_to = date('Y-m-d H:i:s', strtotime('+30 days'));
-        $cartRule->quantity = 1;
-        $cartRule->quantity_per_user = 1;
-        $cartRule->reduction_percent = 5; 
-        $cartRule->active = 1;
-        $cartRule->add();
+        if ($orderStateId == Configuration::get('PS_OS_PAYMENT')) {
 
-        if (!$cartRule->add()) {
-            error_log('Error al crear el código de descuento'); // 🔍 Debug
+            $discountCode = 'DESC' . strtoupper(Tools::passwdGen(8));
+            error_log('Código generado: ' . $discountCode); // 🔍 Debug
+
+            $cartRule = new CartRule();
+            $cartRule->code = $discountCode;
+            $cartRule->name = ['1' => 'Descuento especial'];
+            $cartRule->id_customer = (int) $customer->id;
+            $cartRule->date_from = date('Y-m-d H:i:s');
+            $cartRule->date_to = date('Y-m-d H:i:s', strtotime('+30 days'));
+            $cartRule->quantity = 1;
+            $cartRule->quantity_per_user = 1;
+            $cartRule->reduction_percent = 5; 
+            $cartRule->active = 1;
+            $cartRule->add();
+
+            if (!$cartRule->add()) {
+                error_log('Error al crear el código de descuento'); // 🔍 Debug
+            }
+
+            $result = Mail::Send(
+                (int) $order->id_lang,
+                'discount_email',
+                $this->l('¡Tu código de descuento!'),
+                [
+                    '{firstname}' => $customer->firstname,
+                    '{discount_code}' => $discountCode
+                ],
+                $customer->email,
+                $customer->firstname . ' ' . $customer->lastname,
+                null,
+                null,
+                null,
+                null,
+                _PS_MODULE_DIR_ . 'descuentos_tras_compra/mails/es/discount_email.html'
+            );
+            if (!$result) {
+                error_log('❌ Error al enviar el email');
+            } else {
+                $errorMessage = error_get_last(); // Obtiene el último error PHP
+                $logMessage = '❌ Error al enviar el email: ' . print_r($errorMessage, true);
+                error_log($logMessage); // Guarda en logs de PHP
+                die($logMessage); // Detiene la ejecución y muestra el error en pantalla
+            }
         }
-
-        $result = Mail::Send(
-            (int) $order->id_lang,
-            'discount_email',
-            $this->l('¡Tu código de descuento!'),
-            [
-                '{firstname}' => $customer->firstname,
-                '{discount_code}' => $discountCode
-            ],
-            $customer->email,
-            $customer->firstname . ' ' . $customer->lastname,
-            null,
-            null,
-            null,
-            null,
-            _PS_MODULE_DIR_ . 'descuentos_tras_compra/mails/es/'
-        );
-        if (!$result) {
-            error_log('❌ Error al enviar el email');
-        } else {
-            $errorMessage = error_get_last(); // Obtiene el último error PHP
-            $logMessage = '❌ Error al enviar el email: ' . print_r($errorMessage, true);
-            error_log($logMessage); // Guarda en logs de PHP
-            die($logMessage); // Detiene la ejecución y muestra el error en pantalla
+        else
+        {
+            error_log('El pedido no esta pagado'); // 🔍 Debug
         }
     }
 
