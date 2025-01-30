@@ -233,7 +233,7 @@ class Descuentos_tras_compra extends Module
         $orderState = new OrderState((int) $order->id_order_state);
         $orderStateId = $order->current_state; // ID del estado
 
-        if ($orderStateId == Configuration::get('PS_OS_PAYMENT') or $orderState == Configuration::get('PS_OS_PREPARATION') or $orderState == 10 or $orderStateId == 10) {
+        if ($orderStateId == Configuration::get('PS_OS_PAYMENT') || $orderState == Configuration::get('PS_OS_PREPARATION') || $orderState == 10 || $orderStateId == 10) {
 
             $discountCode = 'DESC' . strtoupper(Tools::passwdGen(8));
             error_log('Código generado: ' . $discountCode); // 🔍 Debug
